@@ -1,0 +1,24 @@
+{% extends "admin_base.html" %}
+{% block title %}Layar Pelanggan{% endblock %}
+{% block isi %}
+<h1>Layar pelanggan</h1>
+<p class="redup">Buka alamat di bawah ini di layar yang menghadap pelanggan (monitor kedua, tablet, atau jendela terpisah). Layar itu berganti sendiri: daftar mobil, lalu QRIS, lalu struk.</p>
+<div class="kartu">
+  <label for="alamat">Alamat layar pelanggan</label>
+  <input id="alamat" value="{{ url }}" readonly onclick="this.select()">
+  <div class="aksi-besar">
+    <a class="btn" href="{{ url }}" target="_blank">Buka layar pelanggan</a>
+    <button type="button" class="btn sek" id="btnReset">Kembalikan layar ke awal</button>
+  </div>
+  <p>Status sekarang: <span class="status-layar {{ s.mode }}" id="layarStatus">
+    {{ {'idle': 'Menampilkan daftar mobil', 'qris': 'Menampilkan QRIS', 'struk': 'Menampilkan struk'}[s.mode] }}</span></p>
+</div>
+<h2 style="margin-top:1.5rem">Pratinjau layar pelanggan</h2>
+<iframe class="pratinjau" src="{{ url }}" title="Pratinjau layar pelanggan"></iframe>
+<script>
+btnReset.addEventListener("click", async () => {
+  await fetch("{{ url_for('layar_reset') }}", {method:"POST"});
+  layarStatus.textContent = "Menampilkan daftar mobil"; layarStatus.className = "status-layar idle";
+});
+</script>
+{% endblock %}

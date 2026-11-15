@@ -1,0 +1,34 @@
+{% extends "admin_base.html" %}
+{% block title %}Data Mobil{% endblock %}
+{% block isi %}
+<h1>Data mobil</h1>
+<form class="cari" method="get">
+  <div class="f"><label for="kat">Cari berdasarkan</label>
+    <select id="kat" name="kat">
+      {% for v, t in [('', 'Semua'), ('kode', 'Kode'), ('merk', 'Merk'), ('tipe', 'Tipe'), ('plat', 'Plat nomor'), ('warna', 'Warna'), ('status', 'Status'), ('kondisi', 'Kondisi'), ('harga', 'Harga sewa')] %}
+      <option value="{{ v }}" {{ 'selected' if request.args.kat == v }}>{{ t }}</option>{% endfor %}
+    </select></div>
+  <div class="f lebar"><label for="q">Kata kunci</label><input id="q" name="q" placeholder="Contoh: Avanza, Tersedia, BE 7893" value="{{ request.args.q }}"></div>
+  <button>Cari</button>
+  <a class="btn sek" href="{{ url_for('admin_mobil') }}">Reset</a>
+</form>
+<p class="redup">{{ rows|length }} mobil ditemukan.</p>
+<div class="scroll"><table>
+<tr><th>Kode</th><th>Mobil</th><th>Plat</th><th>Warna</th><th>Harga/hari</th><th>Status</th><th>Kondisi</th><th></th></tr>
+{% for m in rows %}
+<tr>
+<td>{{ m.id_mobil }}</td>
+<td>{{ m.merk_mobil }} {{ m.tipe_mobil }}</td><td>{{ m.no_plat }}</td><td>{{ m.warna }}</td><td>{{ m.harga_sewa_hari|rp }}</td>
+<td><select name="id_statusMobil" form="f{{ m.id_mobil }}" aria-label="Status {{ m.id_mobil }}">{% for s in status %}<option value="{{ s.id_statusMobil }}" {{ 'selected' if s.id_statusMobil==m.id_statusMobil }}>{{ s.status_mbl }}</option>{% endfor %}</select></td>
+<td><select name="id_kondisiMobil" form="f{{ m.id_mobil }}" aria-label="Kondisi {{ m.id_mobil }}">{% for k in kondisi %}<option value="{{ k.id_kondisiMobil }}" {{ 'selected' if k.id_kondisiMobil==m.id_kondisiMobil }}>{{ k.kondisi_mbl }}</option>{% endfor %}</select></td>
+<td>
+  <form id="f{{ m.id_mobil }}" method="post">
+    <input type="hidden" name="id_mobil" value="{{ m.id_mobil }}">
+    <input type="hidden" name="kat" value="{{ request.args.kat }}"><input type="hidden" name="q" value="{{ request.args.q }}">
+    <button class="btn kecil">Simpan</button>
+  </form>
+</td>
+</tr>
+{% else %}<tr><td colspan="8" class="redup">Tidak ada mobil yang cocok.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

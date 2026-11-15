@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Layar Pelanggan{% endblock %}
+{% block body %}
+<header class="topbar noprint"><strong style="font-family:Sora;color:var(--lilac)">Rental Mobil</strong></header>
+<main class="layar" id="panel" aria-live="polite">{{ panel|safe }}</main>
+<script>
+const STATE = "{{ url_for('layar_state', t=t) }}", PANEL = "{{ url_for('layar_panel', t=t) }}";
+let last = {{ v }}, t0 = Date.now();
+async function tick(){
+  try{
+    const s = await (await fetch(STATE, {cache:"no-store"})).json();
+    if (s.v !== last || (s.mode === "idle" && Date.now() - t0 > 30000)){
+      document.getElementById("panel").innerHTML = await (await fetch(PANEL, {cache:"no-store"})).text();
+      last = s.v; t0 = Date.now();
+    }
+  }catch(e){}
+}
+setInterval(tick, 2000);
+</script>
+{% endblock %}

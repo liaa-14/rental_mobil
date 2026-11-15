@@ -1,0 +1,46 @@
+{% extends "admin_base.html" %}
+{% block title %}Kasir {{ o.id_pemesanan }}{% endblock %}
+{% block isi %}
+<h1>Pembayaran awal {{ o.id_pemesanan }}
+  <span class="lencana {{ 'ok' if o.status_awal == 1 else 'warn' }}">{{ 'Sudah diterima' if o.status_awal == 1 else 'Menunggu pembayaran' }}</span></h1>
+<div class="grid g2">
+  <div class="kartu">
+    <h2>Pelanggan dan mobil</h2>
+    <p>{{ o.nama_cust }} &middot; {{ o.no_telp }}<br>
+    {{ o.merk_mobil }} {{ o.tipe_mobil }} ({{ o.no_plat }})<br>
+    <span class="redup">{{ o.tgl_pemakaian|tgl }} sampai {{ o.tgl_pengembalian|tgl }}</span></p>
+  </div>
+  <div class="kartu">
+    <h2>Yang harus dibayar sekarang</h2>
+    <div class="hitung" style="margin-top:0">
+      <div><span>Total sewa</span><span>{{ o.total_akhir|rp }}</span></div>
+      <div class="tot"><span>Pembayaran awal ({{ o.metode_awal }})</span><span>{{ o.pmb_awal|rp }}</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="kartu" style="margin-top:1rem">
+  <h2>Layar pelanggan</h2>
+  <p class="redup" id="layarStatus">{% if qris %}Tampilkan QRIS supaya pelanggan bisa scan, lalu tekan "Pembayaran sudah diterima" setelah dana masuk.{% else %}Pembayaran tunai: terima uangnya, lalu tekan "Pembayaran sudah diterima".{% endif %}</p>
+  <div class="aksi-besar">
+    {% if qris %}<button type="button" class="btn" id="btnQr">Tampilkan QR di layar pelanggan</button>{% endif %}
+    <form method="post" action="{{ url_for('kasir_terima', id_p=o.id_pemesanan) }}" style="display:inline">
+      <button class="btn hijau">Pembayaran sudah diterima</button>
+    </form>
+    <button type="button" class="btn sek" id="btnReset">Sembunyikan dari layar</button>
+  </div>
+</div>
+<script>
+async function kirim(aksi, data){
+  const r = await fetch("/admin/layar/" + aksi, {method:"POST", body:new URLSearchParams(data || {})});
+  return r.ok;
+}
+{% if qris %}
+btnQr.addEventListener("click", async () => {
+  const ok = await kirim("qris", {id_p:"{{ o.id_pemesanan }}", jenis:"awal", nominal:"{{ o.pmb_awal }}"});
+  layarStatus.textContent = ok ? "QRIS sedang tampil di layar pelanggan sebesar {{ o.pmb_awal|rp }}." : "Gagal menampilkan QRIS.";
+});
+{% endif %}
+btnReset.addEventListener("click", async () => { await kirim("reset"); layarStatus.textContent = "Layar pelanggan dikembalikan ke daftar mobil."; });
+</script>
+{% endblock %}

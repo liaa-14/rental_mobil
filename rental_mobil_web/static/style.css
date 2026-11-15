@@ -1,0 +1,113 @@
+:root{--char:#222023;--char2:#2c292e;--char3:#37333b;--ungu:#522A6F;--lilac:#DDAAFF;--teks:#f3ecf9;--redup:#a99bb6;--ok:#8fe3b0;--err:#ff9bb0;--warn:#ffd48a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--char);color:var(--teks);font:15px/1.55 "DM Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Sora","DM Sans",sans-serif;margin:0 0 .6rem;letter-spacing:-.01em}
+h1{font-size:1.7rem}h2{font-size:1.2rem}
+a{color:var(--lilac)}
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.side{background:var(--ungu);padding:1.4rem 1rem;display:flex;flex-direction:column;gap:.3rem;position:sticky;top:0;height:100vh}
+.brand{font:700 1.15rem "Sora",sans-serif;color:var(--lilac);padding:0 .6rem 1rem}
+.side a{color:var(--teks);text-decoration:none;padding:.6rem .8rem;border-radius:10px}
+.side a:hover{background:rgba(221,170,255,.15)}
+.side a.aktif{background:var(--lilac);color:var(--char);font-weight:600}
+.side .keluar{margin-top:auto;color:var(--lilac)}
+main{padding:2rem clamp(1rem,3vw,2.5rem);max-width:1200px;width:100%}
+.topbar{display:flex;align-items:center;justify-content:space-between;background:var(--ungu);padding:.9rem clamp(1rem,4vw,3rem)}
+.topbar nav a{margin-left:1.2rem;text-decoration:none;color:var(--teks)}
+.topbar nav a.aktif{color:var(--lilac);font-weight:600;border-bottom:2px solid var(--lilac)}
+.wrap{max-width:1100px;margin:0 auto;padding:2rem 1rem}
+.kartu{background:var(--char2);border:1px solid var(--char3);border-radius:14px;padding:1.2rem}
+.grid{display:grid;gap:1rem}
+.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.angka{font:700 2rem "Sora",sans-serif;color:var(--lilac)}
+.redup{color:var(--redup)}
+table{width:100%;border-collapse:collapse;background:var(--char2);border-radius:12px;overflow:hidden}
+th,td{padding:.7rem .9rem;text-align:left;border-bottom:1px solid var(--char3);vertical-align:top}
+th{background:var(--char3);font-weight:600;color:var(--lilac)}
+.scroll{overflow-x:auto}
+.btn,button{background:var(--lilac);color:var(--char);border:0;border-radius:10px;padding:.6rem 1.1rem;font:600 .95rem inherit;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.sek{background:transparent;color:var(--lilac);border:1px solid var(--lilac)}
+.btn.kecil{padding:.3rem .7rem;font-size:.85rem}
+input,select,textarea{width:100%;background:var(--char);color:var(--teks);border:1px solid var(--char3);border-radius:9px;padding:.6rem .7rem;font:inherit}
+input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--lilac);outline-offset:2px}
+label{display:block;font-size:.85rem;color:var(--redup);margin:.7rem 0 .25rem}
+.baris{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.filter{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end;margin:1rem 0}
+.filter>div{min-width:150px}
+.lencana{padding:.15rem .6rem;border-radius:99px;font-size:.8rem;font-weight:600}
+.lencana.ok{background:rgba(143,227,176,.18);color:var(--ok)}
+.lencana.warn{background:rgba(255,212,138,.18);color:var(--warn)}
+.lencana.err{background:rgba(255,155,176,.18);color:var(--err)}
+.flash{padding:.7rem 1rem;border-radius:10px;margin-bottom:1rem}
+.flash.ok{background:rgba(143,227,176,.15);color:var(--ok)}
+.flash.error{background:rgba(255,155,176,.15);color:var(--err)}
+.mobil{display:flex;flex-direction:column;gap:.4rem}
+.mobil .plat{font:600 .8rem monospace;color:var(--redup)}
+.mobil .harga{font:700 1.2rem "Sora",sans-serif;color:var(--lilac)}
+.mobil.mati{opacity:.7}
+.hero{background:linear-gradient(135deg,var(--ungu),var(--char2));border-radius:18px;padding:2rem;margin-bottom:1.5rem}
+.login{max-width:380px;margin:12vh auto;padding:0 1rem}
+.hitung{background:var(--char);border:1px dashed var(--ungu);border-radius:10px;padding:.8rem 1rem;margin-top:1rem;font-size:.92rem}
+.hitung div{display:flex;justify-content:space-between;gap:1rem}
+.hitung .tot{font-weight:700;color:var(--lilac);border-top:1px solid var(--char3);margin-top:.3rem;padding-top:.3rem}
+.bar{height:10px;border-radius:99px;background:var(--char3);overflow:hidden}
+.bar span{display:block;height:100%;background:var(--lilac)}
+canvas{max-height:280px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap}.side .keluar{margin:0}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---- tambahan ---- */
+.adminbar{background:var(--lilac);color:var(--char);display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;padding:.5rem clamp(1rem,4vw,3rem);font-weight:600}
+.adminbar form{display:flex;gap:.5rem;align-items:center;margin-left:auto}
+.adminbar select{width:auto;padding:.3rem .5rem}
+.adminbar .btn{background:var(--char);color:var(--lilac)}
+.adminbar .btn.sek{background:transparent;color:var(--char);border-color:var(--char)}
+.qris{max-width:340px;width:100%;border-radius:12px;display:block;background:#fff}
+.qrisbox{background:var(--char);border:1px dashed var(--lilac);border-radius:12px;padding:1rem;margin-top:1rem}
+[hidden]{display:none!important}
+.cari{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end;margin:1rem 0}
+.cari .f{min-width:160px}
+.cari .f.lebar{flex:1;min-width:220px}
+.stat-angka{font:700 1.5rem "Sora",sans-serif;color:var(--lilac)}
+.mini th,.mini td{padding:.4rem .7rem;font-size:.9rem}
+.tengah{text-align:center}
+.kanan{text-align:right}
+.barstruk{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;padding:1rem}
+.struk{background:#fff;color:#111;max-width:380px;margin:0 auto 2rem;padding:1.4rem 1.2rem;font:13px/1.6 "Courier New",monospace;border-radius:6px;box-shadow:0 6px 30px rgba(0,0,0,.4)}
+.struk h2{font:700 1.1rem "Courier New",monospace;margin:0;text-align:center;letter-spacing:.08em;color:#111}
+.struk .garis{border-top:1px dashed #555;margin:.6rem 0}
+.struk .br{display:flex;justify-content:space-between;gap:.8rem}
+.struk .br span:last-child{text-align:right}
+.struk .tot{font-weight:700;font-size:1.05em}
+.struk .cap{text-align:center;margin:.7rem 0 0;padding:.3rem;border:2px solid #111;font-weight:700;letter-spacing:.15em}
+.struk .kecil{font-size:11px;color:#444;text-align:center}
+.nota{background:var(--char2);border:1px solid var(--char3);border-radius:14px;padding:1.1rem;margin-bottom:1rem}
+.nota .atas{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:center}
+.nota .aksi{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}
+details summary{cursor:pointer;color:var(--lilac);margin-top:.8rem}
+@media print{
+  body{background:#fff}
+  .noprint,.adminbar,.topbar,.barstruk{display:none!important}
+  .struk{box-shadow:none;margin:0 auto}
+}
+
+/* ---- layar pelanggan & kasir ---- */
+.layar{max-width:960px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.layar-qris,.layar-struk{text-align:center}
+.layar-qris h1{font-size:clamp(1.6rem,4vw,2.4rem)}
+.nominal{font:700 clamp(2.2rem,7vw,4rem) "Sora",sans-serif;color:var(--lilac);margin:.4rem 0 1rem}
+.qris.besar{max-width:min(420px,88vw);margin:0 auto;box-shadow:0 8px 40px rgba(221,170,255,.25)}
+.menunggu{margin-top:1rem;color:var(--warn);font-weight:600}
+.titik{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--warn);margin-right:.5rem;animation:kedip 1.2s infinite}
+@keyframes kedip{50%{opacity:.25}}
+.kodebesar{display:inline-block;font:700 clamp(2rem,6vw,3.2rem) "Sora",sans-serif;letter-spacing:.12em;color:var(--char);background:var(--lilac);border-radius:14px;padding:.3rem 1.4rem;margin:.3rem 0 1.2rem}
+.layar-struk .struk{margin-bottom:1rem;text-align:left}
+.status-layar{display:inline-block;padding:.25rem .8rem;border-radius:99px;font-weight:600;background:var(--char3)}
+.status-layar.qris{background:rgba(255,212,138,.2);color:var(--warn)}
+.status-layar.struk{background:rgba(143,227,176,.2);color:var(--ok)}
+.aksi-besar{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem}
+.aksi-besar .btn,.aksi-besar button{padding:.8rem 1.4rem;font-size:1rem}
+.btn.hijau{background:var(--ok);color:var(--char)}
+.pratinjau{width:100%;height:460px;border:1px solid var(--char3);border-radius:12px;background:var(--char)}
+@media(prefers-reduced-motion:reduce){.titik{animation:none}}

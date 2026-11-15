@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% set no = o.id_transaksiAwa if jenis == 'awal' else o.id_detailTransak %}
+{% block title %}Struk {{ no }}{% endblock %}
+{% block body %}
+<div class="barstruk noprint">
+  <button type="button" class="btn sek kecil" onclick="if(history.length>1)history.back();else location.href='{{ url_for('beranda') }}'">&larr; Kembali</button>
+  <a class="btn sek kecil" href="{{ url_for('beranda') }}">Ke beranda admin</a>
+  <button type="button" class="btn kecil" onclick="window.print()">Cetak / simpan PDF</button>
+  <button type="button" class="btn kecil hijau" id="btnLayar">Tampilkan di layar pelanggan</button>
+</div>
+{% with msgs = get_flashed_messages(with_categories=true) %}
+  {% for c, m in msgs %}<div class="flash {{ c }} noprint" style="max-width:380px;margin:0 auto 1rem">{{ m }}</div>{% endfor %}
+{% endwith %}
+<p class="noprint tengah redup" id="layarStatus"></p>
+{% include "_struk_body.html" %}
+<script>
+btnLayar.addEventListener("click", async () => {
+  const r = await fetch("{{ url_for('layar_struk') }}", {method:"POST", body:new URLSearchParams({id_p:"{{ o.id_pemesanan }}", jenis:"{{ jenis }}"})});
+  layarStatus.textContent = r.ok ? "Struk sudah tampil di layar pelanggan." : "Gagal menampilkan struk.";
+});
+</script>
+{% endblock %}

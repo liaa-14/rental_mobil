@@ -1,0 +1,16 @@
+<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(250px,1fr))">
+{% for m in rows %}
+  {% set ada = m.id_statusMobil == 'SM001' %}
+  <article class="kartu mobil {{ '' if ada else 'mati' }}">
+    <span class="lencana {{ 'ok' if ada else 'warn' }}" style="align-self:flex-start">{{ m.status_mbl }}</span>
+    <h2>{{ m.merk_mobil }} {{ m.tipe_mobil }}</h2>
+    <span class="plat">{{ m.no_plat }} - {{ m.warna }}</span>
+    <span class="harga">{{ m.harga_sewa_hari|rp }}<small class="redup" style="font-weight:400"> / hari</small></span>
+    {% if not ada %}
+      <span class="redup">
+      {% if m.tersedia_lagi %}Tersedia lagi mulai {{ m.tersedia_lagi|tgl }}
+      {% elif m.id_statusMobil == 'SM002' %}Sedang dalam perbaikan{% else %}Belum ada jadwal tersedia{% endif %}</span>
+    {% endif %}
+  </article>
+{% else %}<p class="redup">Belum ada data mobil.</p>{% endfor %}
+</div>

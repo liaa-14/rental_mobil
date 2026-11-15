@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block body %}
+{% set ep = request.endpoint %}
+<div class="layout">
+  <aside class="side">
+    <div class="brand">Rental Mobil</div>
+    <a href="{{ url_for('beranda') }}" class="{{ 'aktif' if ep=='beranda' }}">Beranda</a>
+    <a href="{{ url_for('pemesanan') }}" class="{{ 'aktif' if ep in ('pemesanan','pelunasan') }}">Pemesanan</a>
+    <a href="{{ url_for('riwayat') }}" class="{{ 'aktif' if ep in ('riwayat','detail') }}">Riwayat Pemesanan</a>
+    <a href="{{ url_for('statistik') }}" class="{{ 'aktif' if ep=='statistik' }}">Statistik</a>
+    <a href="{{ url_for('admin_mobil') }}" class="{{ 'aktif' if ep=='admin_mobil' }}">Data Mobil</a>
+    <a href="{{ url_for('admin_pelanggan') }}" class="{{ 'aktif' if ep=='admin_pelanggan' }}">Data Pelanggan</a>
+    <a href="{{ url_for('admin_layar') }}" class="{{ 'aktif' if ep=='admin_layar' }}">Layar Pelanggan</a>
+    <a href="{{ url_for('client_mobil') }}">Lihat sisi pelanggan</a>
+    <a class="keluar" href="{{ url_for('logout') }}">Keluar</a>
+  </aside>
+  <main>
+    {% if ep != 'beranda' %}
+    <p class="noprint"><button type="button" class="btn sek kecil" onclick="kembali()">&larr; Kembali</button></p>
+    {% endif %}
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for c, m in msgs %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}
+    {% endwith %}
+    {% block isi %}{% endblock %}
+  </main>
+</div>
+<script>
+function kembali(){ if (history.length > 1) history.back(); else location.href = "{{ url_for('beranda') }}"; }
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "admin_base.html" %}
+{% block title %}Data Pelanggan{% endblock %}
+{% block isi %}
+<h1>Data pelanggan</h1>
+<form class="cari" method="get">
+  <div class="f"><label for="kat">Cari berdasarkan</label>
+    <select id="kat" name="kat">
+      {% for v, t in [('', 'Semua'), ('kode', 'Kode pelanggan'), ('nama', 'Nama'), ('nik', 'NIK'), ('telp', 'Nomor telepon'), ('alamat', 'Alamat')] %}
+      <option value="{{ v }}" {{ 'selected' if request.args.kat == v }}>{{ t }}</option>{% endfor %}
+    </select></div>
+  <div class="f lebar"><label for="q">Kata kunci</label><input id="q" name="q" placeholder="Ketik lalu tekan Cari" value="{{ request.args.q }}"></div>
+  <button>Cari</button>
+  <a class="btn sek" href="{{ url_for('admin_pelanggan') }}">Reset</a>
+</form>
+<p class="redup">{{ rows|length }} pelanggan ditemukan.</p>
+<div class="scroll"><table>
+<tr><th>Kode</th><th>Nama</th><th>NIK</th><th>Telepon</th><th>Alamat</th><th>Jumlah pesanan</th></tr>
+{% for c in rows %}<tr><td>{{ c.id_customer }}</td><td>{{ c.nama_cust }}</td><td>{{ c.nik }}</td><td>{{ c.no_telp }}</td><td>{{ c.alamat_lengkap }}</td><td>{{ c.jml }}</td></tr>
+{% else %}<tr><td colspan="6" class="redup">Tidak ada pelanggan yang cocok.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

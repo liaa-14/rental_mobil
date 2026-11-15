@@ -1,0 +1,88 @@
+{% extends "admin_base.html" %}
+{% block title %}Pemesanan{% endblock %}
+{% block isi %}
+<h1>Pemesanan baru</h1>
+<p class="redup">Kode dan tanggal order dibuat otomatis. Hanya data pelanggan yang diketik.</p>
+<form method="post" class="kartu" id="form">
+  <h2>Data pelanggan</h2>
+  <div class="baris">
+    <div><label for="nama">Nama</label><input id="nama" name="nama" required></div>
+    <div><label for="nik">NIK</label><input id="nik" name="nik" required inputmode="numeric" maxlength="16"></div>
+    <div><label for="no_telp">Nomor telepon</label><input id="no_telp" name="no_telp" required inputmode="tel"></div>
+  </div>
+  <div class="baris">
+    <div><label for="prov_s">Provinsi</label><select id="prov_s"><option value="">Memuat...</option></select><input type="hidden" name="prov" id="prov"></div>
+    <div><label for="kab_s">Kabupaten/Kota</label><select id="kab_s" disabled></select><input type="hidden" name="kab" id="kab"></div>
+    <div><label for="kec_s">Kecamatan</label><select id="kec_s" disabled></select><input type="hidden" name="kec" id="kec"></div>
+  </div>
+  <label for="detail">Detail alamat</label><input id="detail" name="detail" placeholder="Jalan, nomor, RT/RW" required>
+
+  <h2 style="margin-top:1.5rem">Sewa</h2>
+  <div class="baris">
+    <div><label for="id_mobil">Mobil (yang tersedia)</label>
+      <select id="id_mobil" name="id_mobil" required>
+        <option value="" data-harga="0">Pilih mobil</option>
+        {% for m in mobil %}<option value="{{ m.id_mobil }}" data-harga="{{ m.harga_sewa_hari }}">{{ m.merk_mobil }} {{ m.tipe_mobil }} - {{ m.no_plat }} ({{ m.harga_sewa_hari|rp }}/hari)</option>{% endfor %}
+      </select></div>
+    <div><label for="tp">Tanggal pemakaian</label><input id="tp" type="date" name="tgl_pemakaian" min="{{ today }}" required></div>
+    <div><label for="tk">Tanggal pengembalian</label><input id="tk" type="date" name="tgl_pengembalian" min="{{ today }}" required></div>
+    <div><label for="dk">Diskon (%)</label><input id="dk" type="number" name="diskon_persen" min="0" max="99" step="1" value="0"></div>
+  </div>
+
+  <h2 style="margin-top:1.5rem">Pembayaran awal</h2>
+  <div class="baris">
+    <div><label for="mp">Metode</label>
+      <select id="mp" name="id_metodePemb">{% for m in metode %}<option value="{{ m.id_metodePemb }}" data-qris="{{ 1 if is_qris(m.metode_pembayaran) else 0 }}">{{ m.metode_pembayaran }}</option>{% endfor %}</select></div>
+    <div><label for="pa">Nominal pembayaran awal</label><input id="pa" type="number" name="pmb_awal" min="0" required></div>
+  </div>
+  <p class="redup">Setelah disimpan, kamu diarahkan ke halaman kasir untuk menampilkan QR dan menerima pembayaran.</p>
+
+  <div class="hitung" id="hitung">
+    <div><span>Lama sewa</span><span id="h_hari">-</span></div>
+    <div><span>Total sewa (hari x harga)</span><span id="h_awal">-</span></div>
+    <div><span>Potongan diskon</span><span id="h_pot">-</span></div>
+    <div class="tot"><span>Total yang harus dibayar</span><span id="h_akhir">-</span></div>
+    <div><span>Batas pembayaran awal (30% - 50%)</span><span id="h_batas">-</span></div>
+  </div>
+  <p><button>Simpan dan lanjut ke kasir</button></p>
+</form>
+
+<script>
+const rp = n => "Rp " + Math.round(n).toLocaleString("id-ID");
+function hitung(){
+  const h = +document.querySelector("#id_mobil option:checked").dataset.harga || 0;
+  const a = new Date(tp.value), b = new Date(tk.value);
+  if(!h || isNaN(a) || isNaN(b)) return;
+  const hari = Math.max(1, Math.round((b - a) / 864e5));
+  const awal = hari * h, d = Math.min(99, Math.max(0, +dk.value || 0));
+  const pot = awal * d / 100, akhir = awal - pot;
+  h_hari.textContent = hari + " hari";
+  h_awal.textContent = hari + " x " + rp(h) + " = " + rp(awal);
+  h_pot.textContent = d + "% x " + rp(awal) + " = " + rp(pot);
+  h_akhir.textContent = rp(akhir);
+  h_batas.textContent = rp(Math.ceil(akhir*.3)) + " - " + rp(Math.floor(akhir*.5));
+  pa.min = Math.ceil(akhir*.3); pa.max = Math.floor(akhir*.5);
+}
+["id_mobil","tp","tk","dk"].forEach(i => document.getElementById(i).addEventListener("input", hitung));
+
+// Alamat berjenjang (data wilayah Indonesia dari emsifa)
+const API = "https://www.emsifa.com/api-wilayah-indonesia/api/";
+async function isi(sel, url, hidden){
+  sel.innerHTML = "<option value=''>Memuat...</option>";
+  try{
+    const d = await (await fetch(API + url)).json();
+    sel.innerHTML = "<option value=''>Pilih</option>" + d.map(x => `<option value="${x.id}" data-n="${x.name}">${x.name}</option>`).join("");
+    sel.disabled = false;
+  }catch(e){
+    sel.outerHTML = `<input id="${sel.id}" placeholder="Ketik manual" oninput="document.getElementById('${hidden.id}').value=this.value">`;
+  }
+}
+function pilih(sel, hidden){ hidden.value = sel.selectedOptions[0]?.dataset.n || ""; }
+isi(prov_s, "provinces.json", prov);
+document.addEventListener("change", e => {
+  if(e.target.id==="prov_s"){ pilih(prov_s, prov); kab.value=kec.value=""; kec_s.innerHTML=""; kec_s.disabled=true; if(prov_s.value) isi(kab_s, `regencies/${prov_s.value}.json`, kab); }
+  if(e.target.id==="kab_s"){ pilih(kab_s, kab); kec.value=""; if(kab_s.value) isi(kec_s, `districts/${kab_s.value}.json`, kec); }
+  if(e.target.id==="kec_s"){ pilih(kec_s, kec); }
+});
+</script>
+{% endblock %}

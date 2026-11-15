@@ -1,0 +1,26 @@
+{% if mode == 'qris' and o %}
+<section class="layar-qris">
+  <h1>Scan QRIS untuk membayar</h1>
+  <p class="redup">{{ 'Pembayaran awal' if s.jenis == 'awal' else 'Pelunasan' }} &middot; {{ o.nama_cust }} &middot; {{ o.merk_mobil }} {{ o.tipe_mobil }}</p>
+  <div class="nominal">{{ s.nominal|rp }}</div>
+  <img class="qris besar" src="{{ url_for('static', filename='qris.jpg') }}" alt="QRIS pembayaran rental mobil">
+  <p class="menunggu"><span class="titik"></span>Menunggu pembayaran...</p>
+  <p class="redup">Kode pemesanan {{ o.id_pemesanan }}</p>
+</section>
+{% elif mode == 'struk' and o %}
+{% set jenis = s.jenis %}
+<section class="layar-struk">
+  <h1 class="noprint">Pembayaran diterima. Terima kasih!</h1>
+  <p class="redup noprint" style="margin:0">Kode struk Anda</p>
+  <div class="kodebesar">{{ o.id_transaksiAwa if jenis == 'awal' else o.id_detailTransak }}</div>
+  {% include "_struk_body.html" %}
+  <p class="noprint"><button type="button" onclick="window.print()">Cetak / simpan PDF</button></p>
+</section>
+{% else %}
+<div class="hero">
+  <h1>Selamat datang di Rental Mobil</h1>
+  <p class="redup" style="margin:0">Berikut mobil yang kami sediakan. QRIS pembayaran dan struk akan tampil di layar ini otomatis.</p>
+</div>
+{% set rows = rows %}
+{% include "_mobil_grid.html" %}
+{% endif %}

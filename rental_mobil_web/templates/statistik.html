@@ -1,0 +1,54 @@
+{% extends "admin_base.html" %}
+{% block title %}Statistik{% endblock %}
+{% block isi %}
+<h1>Statistik</h1>
+<div class="grid g4" style="margin:1rem 0 1.5rem">
+  <div class="kartu"><div class="stat-angka">{{ s.pesan }}</div>Total pemesanan</div>
+  <div class="kartu"><div class="stat-angka">{{ s.pelanggan }}</div>Total pelanggan</div>
+  <div class="kartu"><div class="stat-angka">{{ s.pendapatan|rp }}</div>Uang diterima<br><span class="redup">awal {{ s.awal|rp }} + pelunasan {{ s.akhir|rp }}</span></div>
+  <div class="kartu"><div class="stat-angka">{{ s.denda|rp }}</div>Total denda</div>
+  <div class="kartu"><div class="stat-angka">{{ s.rata|rp }}</div>Rata-rata nilai sewa</div>
+  <div class="kartu"><div class="stat-angka">{{ s.terlaris.nama if s.terlaris else '-' }}</div>Mobil terlaris{% if s.terlaris %} ({{ s.terlaris.n }}x){% endif %}</div>
+</div>
+
+<div class="grid g2">
+  <div class="kartu"><h2>Keramaian pemesanan per bulan</h2><canvas id="c1"></canvas>
+    <table class="mini" style="margin-top:.8rem"><tr><th>Bulan</th><th class="kanan">Pemesanan</th></tr>
+    {% for r in ramai %}<tr><td>{{ r.bln }}</td><td class="kanan">{{ r.n }}</td></tr>{% else %}<tr><td colspan="2" class="redup">Belum ada data</td></tr>{% endfor %}</table></div>
+
+  <div class="kartu"><h2>Pemesanan per mobil</h2><canvas id="c2"></canvas>
+    <table class="mini" style="margin-top:.8rem"><tr><th>Mobil</th><th class="kanan">Pemesanan</th></tr>
+    {% for r in per_mobil %}<tr><td>{{ r.nama }}</td><td class="kanan">{{ r.n }}</td></tr>{% endfor %}</table></div>
+
+  <div class="kartu"><h2>Metode pembayaran</h2><canvas id="c3"></canvas>
+    <table class="mini" style="margin-top:.8rem"><tr><th>Metode</th><th class="kanan">Jumlah</th><th class="kanan">Persen</th></tr>
+    {% for r in metode %}<tr><td>{{ r.nama }}</td><td class="kanan">{{ r.n }}</td><td class="kanan">{{ r.persen }}%</td></tr>{% endfor %}</table></div>
+
+  <div class="kartu"><h2>Status pemesanan</h2><canvas id="c4"></canvas>
+    <table class="mini" style="margin-top:.8rem"><tr><th>Status</th><th class="kanan">Jumlah</th><th class="kanan">Persen</th></tr>
+    {% for r in status %}<tr><td>{{ r.nama }}</td><td class="kanan">{{ r.n }}</td><td class="kanan">{{ r.persen }}%</td></tr>{% endfor %}</table></div>
+
+  <div class="kartu"><h2>Pendapatan pelunasan per bulan</h2><canvas id="c5"></canvas>
+    <table class="mini" style="margin-top:.8rem"><tr><th>Bulan</th><th class="kanan">Pendapatan</th></tr>
+    {% for r in pendapatan %}<tr><td>{{ r.bln }}</td><td class="kanan">{{ r.n|rp }}</td></tr>{% else %}<tr><td colspan="2" class="redup">Belum ada data</td></tr>{% endfor %}</table></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const warna = ["#DDAAFF","#9b6bc4","#522A6F","#f3ecf9","#7d5aa0","#c9a0e8"];
+Chart.defaults.color = "#a99bb6"; Chart.defaults.borderColor = "#37333b";
+const L = (d,k) => d.map(x => x[k]);
+const ramai = {{ ramai|tojson }}, pm = {{ per_mobil|tojson }}, mt = {{ metode|tojson }},
+      st = {{ status|tojson }}, pd = {{ pendapatan|tojson }};
+const angka = {id:"angka", afterDatasetsDraw(ch){            // tampilkan angka di atas batang/titik
+  if (ch.config.type === "doughnut") return;
+  const c = ch.ctx; c.save(); c.fillStyle = "#f3ecf9"; c.font = "12px sans-serif"; c.textAlign = "center";
+  ch.getDatasetMeta(0).data.forEach((el, i) => c.fillText(ch.data.datasets[0].data[i].toLocaleString("id-ID"), el.x, el.y - 6));
+  c.restore(); }};
+const opsi = {layout:{padding:{top:18}}};
+new Chart(c1, {type:"line", plugins:[angka], options:opsi, data:{labels:L(ramai,"bln"), datasets:[{label:"Pemesanan", data:L(ramai,"n"), borderColor:"#DDAAFF", backgroundColor:"rgba(221,170,255,.2)", fill:true, tension:.3}]}});
+new Chart(c2, {type:"bar", plugins:[angka], options:opsi, data:{labels:L(pm,"nama"), datasets:[{label:"Pemesanan", data:L(pm,"n"), backgroundColor:"#DDAAFF"}]}});
+new Chart(c3, {type:"doughnut", data:{labels:L(mt,"nama"), datasets:[{data:L(mt,"n"), backgroundColor:warna, borderWidth:0}]}});
+new Chart(c4, {type:"doughnut", data:{labels:L(st,"nama"), datasets:[{data:L(st,"n"), backgroundColor:["#ffd48a","#8fe3b0"], borderWidth:0}]}});
+new Chart(c5, {type:"bar", plugins:[angka], options:opsi, data:{labels:L(pd,"bln"), datasets:[{label:"Rupiah", data:L(pd,"n"), backgroundColor:"#9b6bc4"}]}});
+</script>
+{% endblock %}

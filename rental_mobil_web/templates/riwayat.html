@@ -1,0 +1,28 @@
+{% extends "admin_base.html" %}
+{% block title %}Riwayat Pemesanan{% endblock %}
+{% block isi %}
+<h1>Riwayat pemesanan</h1>
+<p class="redup">Hanya pemesanan yang sudah lunas.</p>
+<form class="cari" method="get">
+  <div class="f"><label for="dari">Dari tanggal lunas</label><input id="dari" type="date" name="dari" value="{{ request.args.dari }}"></div>
+  <div class="f"><label for="sampai">Sampai</label><input id="sampai" type="date" name="sampai" value="{{ request.args.sampai }}"></div>
+  <div class="f"><label for="kat">Cari berdasarkan</label>
+    <select id="kat" name="kat">
+      {% for v, t in [('', 'Semua'), ('kode', 'Kode pemesanan'), ('pelanggan', 'Nama pelanggan'), ('mobil', 'Merk / tipe mobil'), ('plat', 'Plat nomor')] %}
+      <option value="{{ v }}" {{ 'selected' if request.args.kat == v }}>{{ t }}</option>{% endfor %}
+    </select></div>
+  <div class="f lebar"><label for="cari">Kata kunci</label><input id="cari" name="cari" placeholder="Ketik lalu tekan Cari" value="{{ request.args.cari }}"></div>
+  <button>Cari</button>
+  <a class="btn sek" href="{{ url_for('riwayat') }}">Reset</a>
+  <a class="btn sek" href="{{ url_for('riwayat_export', **request.args) }}">Ekspor CSV</a>
+</form>
+<p class="redup">{{ rows|length }} data ditemukan.</p>
+<div class="scroll"><table>
+<tr><th>Kode</th><th>Pelanggan</th><th>Mobil</th><th>Tanggal lunas</th><th>Total dibayar</th><th></th></tr>
+{% for o in rows %}
+<tr><td>{{ o.id_pemesanan }}</td><td>{{ o.nama_cust }}</td><td>{{ o.merk_mobil }} {{ o.tipe_mobil }}</td>
+<td>{{ o.tgl_lunas|tgl }}</td><td>{{ ((o.pmb_awal or 0) + o.total_pelunasan)|rp }}</td>
+<td><a class="btn kecil" href="{{ url_for('detail', id_p=o.id_pemesanan) }}">Cek detail</a></td></tr>
+{% else %}<tr><td colspan="6" class="redup">Tidak ada data yang cocok.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

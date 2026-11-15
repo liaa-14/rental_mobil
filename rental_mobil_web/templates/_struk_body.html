@@ -1,0 +1,35 @@
+{% set awal = (jenis == 'awal') %}
+{% set no = o.id_transaksiAwa if awal else o.id_detailTransak %}
+<div class="struk">
+  <h2>RENTAL MOBIL</h2>
+  <div class="kecil">{{ 'STRUK PEMBAYARAN AWAL' if awal else 'STRUK PELUNASAN' }}</div>
+  <div class="garis"></div>
+  <div class="br"><span>No. Struk</span><span>{{ no }}</span></div>
+  <div class="br"><span>Tanggal</span><span>{{ (o.tgl_bayar_awal if awal else o.tgl_lunas)|tgl }}</span></div>
+  <div class="br"><span>Kode Pesan</span><span>{{ o.id_pemesanan }}</span></div>
+  <div class="br"><span>Pelanggan</span><span>{{ o.nama_cust }}</span></div>
+  <div class="garis"></div>
+  <div class="br"><span>Mobil</span><span>{{ o.merk_mobil }} {{ o.tipe_mobil }}</span></div>
+  <div class="br"><span>Plat</span><span>{{ o.no_plat }}</span></div>
+  <div class="br"><span>Pakai</span><span>{{ o.tgl_pemakaian|tgl }}</span></div>
+  <div class="br"><span>Kembali</span><span>{{ o.tgl_pengembalian|tgl }}</span></div>
+  <div class="garis"></div>
+  <div class="br"><span>Total sewa</span><span>{{ o.total_akhir|rp }}</span></div>
+  {% if awal %}
+    <div class="br tot"><span>Bayar awal</span><span>{{ o.pmb_awal|rp }}</span></div>
+    <div class="br"><span>Sisa</span><span>{{ (o.total_akhir - o.pmb_awal)|rp }}</span></div>
+    <div class="br"><span>Metode</span><span>{{ o.metode_awal }}</span></div>
+    <div class="cap">{{ 'DITERIMA' if o.status_awal == 1 else 'MENUNGGU PEMBAYARAN' }}</div>
+  {% else %}
+    <div class="br"><span>Sudah dibayar</span><span>- {{ o.pmb_awal|rp }}</span></div>
+    <div class="br"><span>Sisa</span><span>{{ o.total_sisa|rp }}</span></div>
+    <div class="br"><span>Denda</span><span>{{ o.denda|rp }}</span></div>
+    <div class="br tot"><span>Bayar pelunasan</span><span>{{ o.total_pelunasan|rp }}</span></div>
+    <div class="br"><span>Metode</span><span>{{ o.metode_akhir }}</span></div>
+    <div class="garis"></div>
+    <div class="br tot"><span>Total seluruhnya</span><span>{{ ((o.pmb_awal or 0) + o.total_pelunasan)|rp }}</span></div>
+    <div class="cap">LUNAS</div>
+  {% endif %}
+  <div class="garis"></div>
+  <div class="kecil">Simpan struk ini sebagai bukti pembayaran.<br>Terima kasih telah menyewa.</div>
+</div>

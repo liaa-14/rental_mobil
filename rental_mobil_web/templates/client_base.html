@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block body %}
+{% if session.admin %}
+<div class="adminbar noprint">
+  <span>Mode admin: kamu sedang melihat sisi pelanggan</span>
+  <a class="btn kecil sek" href="{{ layar_url() }}" target="_blank" style="margin-left:auto">Buka layar pelanggan</a>
+  <a class="btn kecil" href="{{ url_for('beranda') }}">&larr; Kembali ke admin</a>
+</div>
+{% endif %}
+<header class="topbar">
+  <strong style="font-family:Sora;color:var(--lilac)">Rental Mobil</strong>
+  <nav><a href="{{ url_for('client_mobil') }}" class="aktif">Daftar Mobil</a></nav>
+</header>
+<div class="wrap">
+  {% block isi %}{% endblock %}
+</div>
+{% endblock %}

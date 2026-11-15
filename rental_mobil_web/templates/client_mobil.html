@@ -1,0 +1,9 @@
+{% extends "client_base.html" %}
+{% block title %}Daftar Mobil{% endblock %}
+{% block isi %}
+<div class="hero">
+  <h1>Pilih mobil untuk perjalananmu</h1>
+  <p class="redup" style="margin:0">Lihat mobil yang tersedia dan harga sewa per hari. Pemesanan dilakukan bersama admin di kasir.</p>
+</div>
+{% include "_mobil_grid.html" %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Masuk Admin{% endblock %}
+{% block body %}
+<div class="login">
+  <h1>Masuk admin</h1>
+  <p class="redup">Gunakan akun admin rental.</p>
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for c, m in msgs %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}
+  {% endwith %}
+  <form method="post" class="kartu">
+    <label for="u">Nama pengguna</label><input id="u" name="username" required autofocus>
+    <label for="p">Kata sandi</label><input id="p" name="password" type="password" required>
+    <p><button>Masuk</button></p>
+  </form>
+  <p><a href="{{ url_for('client_mobil') }}">Ke halaman pelanggan</a></p>
+</div>
+{% endblock %}

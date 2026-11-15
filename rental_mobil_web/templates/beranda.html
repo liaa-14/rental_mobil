@@ -1,0 +1,34 @@
+{% extends "admin_base.html" %}
+{% block title %}Beranda{% endblock %}
+{% block isi %}
+<h1>Selamat datang, {{ session.admin }}</h1>
+<div class="grid g4" style="margin:1rem 0 1.5rem">
+  <div class="kartu"><div class="angka">{{ r.tersedia }}</div>Mobil tersedia</div>
+  <div class="kartu"><div class="angka">{{ r.terpakai }}</div>Mobil terpakai</div>
+  <div class="kartu"><div class="angka">{{ r.berjalan }}</div>Pemesanan berjalan</div>
+  <div class="kartu"><div class="angka">{{ r.lunas }}</div>Pemesanan lunas</div>
+</div>
+<h2>Pemesanan berjalan</h2>
+<form class="filter" method="get">
+  <div><label for="urut">Urutkan</label>
+  <select id="urut" name="urut" onchange="this.form.submit()">
+    <option value="dekat" {{ 'selected' if urut=='dekat' }}>Pengembalian terdekat</option>
+    <option value="jauh" {{ 'selected' if urut=='jauh' }}>Pengembalian terjauh</option>
+    <option value="baru" {{ 'selected' if urut=='baru' }}>Pesanan terbaru</option>
+  </select></div>
+</form>
+<div class="scroll"><table>
+<tr><th>Kode</th><th>Pelanggan</th><th>Mobil</th><th>Pakai</th><th>Kembali</th><th>Total</th><th>Sudah dibayar</th><th>Status</th><th></th></tr>
+{% for o in rows %}
+<tr><td>{{ o.id_pemesanan }}</td><td>{{ o.nama_cust }}</td>
+<td>{{ o.merk_mobil }} {{ o.tipe_mobil }}<br><span class="redup">{{ o.no_plat }}</span></td>
+<td>{{ o.tgl_pemakaian|tgl }}</td><td>{{ o.tgl_pengembalian|tgl }}</td>
+<td>{{ o.total_akhir|rp }}</td><td>{{ o.pmb_awal|rp }}</td>
+<td><span class="lencana warn">Berjalan</span>{% if o.status_awal != 1 %}<br><span class="lencana err">Bayar awal belum diterima</span>{% endif %}</td>
+<td style="white-space:nowrap"><a class="btn kecil" href="{{ url_for('pelunasan', id_p=o.id_pemesanan) }}">Pelunasan</a>
+{% if o.status_awal != 1 %}<a class="btn kecil hijau" href="{{ url_for('kasir', id_p=o.id_pemesanan) }}">Kasir</a>
+{% else %}<a class="btn kecil sek" href="{{ url_for('struk', id_p=o.id_pemesanan, jenis='awal') }}">Struk</a>{% endif %}</td></tr>
+{% else %}<tr><td colspan="9" class="redup">Belum ada pemesanan berjalan. Buat dari menu Pemesanan.</td></tr>
+{% endfor %}
+</table></div>
+{% endblock %}

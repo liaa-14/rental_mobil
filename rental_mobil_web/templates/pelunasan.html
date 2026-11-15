@@ -1,0 +1,85 @@
+{% extends "admin_base.html" %}
+{% block title %}Pelunasan {{ o.id_pemesanan }}{% endblock %}
+{% block isi %}
+<h1>Form pelunasan {{ o.id_pemesanan }}</h1>
+<form method="post" class="kartu" style="max-width:640px" id="fp">
+  <h2>Data pelanggan</h2>
+  <p>{{ o.nama_cust }} &middot; {{ o.no_telp }}<br>
+  <span class="redup">NIK {{ o.nik }} &middot; {{ o.alamat_lengkap }}</span></p>
+  <h2>Data sewa</h2>
+  <p>{{ o.merk_mobil }} {{ o.tipe_mobil }} ({{ o.no_plat }})<br>
+  <span class="redup">{{ o.tgl_pemakaian|tgl }} sampai {{ o.tgl_pengembalian|tgl }} &middot; {{ o.harga_sewa_hari|rp }} per hari</span></p>
+
+  <div class="hitung">
+    <div><span>Total sewa</span><span>{{ o.total_akhir|rp }}</span></div>
+    <div><span>Sudah dibayar (awal)</span><span>- {{ o.pmb_awal|rp }}</span></div>
+    <div class="tot"><span>Sisa pembayaran</span><span>{{ sisa|rp }}</span></div>
+  </div>
+
+  <h2 style="margin-top:1.2rem">Pengembalian dan denda</h2>
+  <div class="baris">
+    <div><label for="tgl">Tanggal dikembalikan</label><input id="tgl" type="date" value="{{ today }}"></div>
+    <div><label for="tarif">Tarif denda per hari (Rp)</label><input id="tarif" type="number" min="0" value="{{ tarif }}"></div>
+    <div><label for="denda">Denda (Rp)</label><input id="denda" name="denda" type="number" min="0" value="0"></div>
+  </div>
+  <p class="redup" id="telat" style="margin:.4rem 0 0"></p>
+
+  <h2 style="margin-top:1.2rem">Pembayaran</h2>
+  <label for="mp">Metode pelunasan</label>
+  <select id="mp" name="id_metodePemb">
+    {% for m in metode %}<option value="{{ m.id_metodePemb }}" data-qris="{{ 1 if is_qris(m.metode_pembayaran) else 0 }}">{{ m.metode_pembayaran }}</option>{% endfor %}
+  </select>
+
+  <div class="hitung">
+    <div class="tot"><span>Total yang harus dibayar</span><span id="tagihan">-</span></div>
+  </div>
+
+  <div id="rowCash">
+    <label for="nominal">Uang diterima (Rp)</label>
+    <input id="nominal" name="nominal" type="number" min="0">
+    <p class="redup" id="kembalian" style="margin:.4rem 0 0"></p>
+  </div>
+  <div id="rowQris" hidden>
+    <p class="redup">Tekan tombol ini supaya QRIS dan nominalnya tampil otomatis di layar pelanggan. Kalau denda diubah, tekan lagi.</p>
+    <button type="button" class="btn" id="btnQr">Tampilkan QR di layar pelanggan</button>
+  </div>
+  <p class="redup" id="layarStatus" style="margin:.6rem 0 0"></p>
+
+  <div class="aksi-besar">
+    <button class="btn hijau">Pembayaran sudah diterima</button>
+    <a class="btn sek" href="{{ url_for('beranda') }}">Batal</a>
+  </div>
+</form>
+
+<script>
+const SISA = {{ sisa }}, JADWAL = new Date("{{ o.tgl_pengembalian.isoformat() }}");
+const rp = n => "Rp " + Math.round(n).toLocaleString("id-ID");
+const telat_ = document.getElementById("telat");
+function hitungDenda(){
+  const telat = Math.max(0, Math.round((new Date(tgl.value) - JADWAL) / 864e5));
+  telat_.textContent = telat ? "Terlambat " + telat + " hari x " + rp(+tarif.value || 0) + " = " + rp(telat * (+tarif.value || 0)) : "Tidak terlambat.";
+  denda.value = telat * (+tarif.value || 0);
+  hitungTotal();
+}
+function hitungTotal(){
+  const total = SISA + (+denda.value || 0);
+  tagihan.textContent = rp(SISA) + " + " + rp(+denda.value || 0) + " = " + rp(total);
+  const k = (+nominal.value || 0) - total;
+  kembalian.textContent = nominal.value ? (k >= 0 ? "Kembalian: " + rp(k) : "Uang kurang " + rp(-k)) : "";
+}
+function ganti(){
+  const q = document.querySelector("#mp option:checked").dataset.qris === "1";
+  rowQris.hidden = !q; rowCash.hidden = q; nominal.required = !q;
+}
+btnQr.addEventListener("click", async () => {
+  const total = SISA + (+denda.value || 0);
+  const r = await fetch("{{ url_for('layar_qris') }}", {method:"POST",
+    body:new URLSearchParams({id_p:"{{ o.id_pemesanan }}", jenis:"lunas", nominal:total})});
+  layarStatus.textContent = r.ok ? "QRIS sedang tampil di layar pelanggan sebesar " + rp(total) + "." : "Gagal menampilkan QRIS.";
+});
+tgl.addEventListener("input", hitungDenda); tarif.addEventListener("input", hitungDenda);
+denda.addEventListener("input", hitungTotal); nominal.addEventListener("input", hitungTotal);
+mp.addEventListener("change", ganti);
+hitungDenda(); ganti();
+</script>
+{% endblock %}
