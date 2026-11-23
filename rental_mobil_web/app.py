@@ -104,7 +104,7 @@ def set_layar(**kw):
 def layar_snapshot():
     with _lock:
         s = dict(LAYAR)
-    batas = {"struk": 600, "qris": 1800}.get(s["mode"])      # kembali ke awal otomatis
+    batas = {"struk": 120, "qris": 120}.get(s["mode"])      # kembali ke awal otomatis
     if batas and time.time() - s["ts"] > batas:
         set_layar(mode="idle", id_p=None, jenis=None, nominal=0)
         with _lock:
