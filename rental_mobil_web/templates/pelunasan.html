@@ -55,31 +55,70 @@
 const SISA = {{ sisa }}, JADWAL = new Date("{{ o.tgl_pengembalian.isoformat() }}");
 const rp = n => "Rp " + Math.round(n).toLocaleString("id-ID");
 const telat_ = document.getElementById("telat");
-function hitungDenda(){
+
+async function kirimQrisOtomatis() {
+  const isQris = document.querySelector("#mp option:checked").dataset.qris === "1";
+  if (!isQris) return;
+  
+  const total = SISA + (+denda.value || 0);
+  layarStatus.textContent = "Mengirim QRIS ke layar pelanggan...";
+  try {
+    const r = await fetch("{{ url_for('layar_qris') }}", {
+      method: "POST",
+      body: new URLSearchParams({
+        id_p: "{{ o.id_pemesanan }}",
+        jenis: "lunas",
+        nominal: total
+      })
+    });
+    layarStatus.textContent = r.ok
+      ? "QRIS sedang tampil di layar pelanggan sebesar " + rp(total) + "."
+      : "Gagal menampilkan QRIS.";
+  } catch (e) {
+    layarStatus.textContent = "Koneksi ke layar pelanggan terganggu.";
+  }
+}
+
+function hitungDenda() {
   const telat = Math.max(0, Math.round((new Date(tgl.value) - JADWAL) / 864e5));
-  telat_.textContent = telat ? "Terlambat " + telat + " hari x " + rp(+tarif.value || 0) + " = " + rp(telat * (+tarif.value || 0)) : "Tidak terlambat.";
+  telat_.textContent = telat
+    ? "Terlambat " + telat + " hari x " + rp(+tarif.value || 0) + " = " + rp(telat * (+tarif.value || 0))
+    : "Tidak terlambat.";
   denda.value = telat * (+tarif.value || 0);
   hitungTotal();
 }
-function hitungTotal(){
+
+function hitungTotal() {
   const total = SISA + (+denda.value || 0);
   tagihan.textContent = rp(SISA) + " + " + rp(+denda.value || 0) + " = " + rp(total);
   const k = (+nominal.value || 0) - total;
-  kembalian.textContent = nominal.value ? (k >= 0 ? "Kembalian: " + rp(k) : "Uang kurang " + rp(-k)) : "";
+  kembalian.textContent = nominal.value
+    ? (k >= 0 ? "Kembalian: " + rp(k) : "Uang kurang " + rp(-k))
+    : "";
+  kirimQrisOtomatis(); // Update nominal QR di layar pelanggan otomatis jika denda berubah
 }
-function ganti(){
+
+function ganti() {
   const q = document.querySelector("#mp option:checked").dataset.qris === "1";
-  rowQris.hidden = !q; rowCash.hidden = q; nominal.required = !q;
+  rowQris.hidden = !q;
+  rowCash.hidden = q;
+  nominal.required = !q;
+  if (q) {
+    kirimQrisOtomatis(); // Langsung tampilkan QRIS begitu metode QRIS dipilih
+  } else {
+    fetch("{{ url_for('layar_reset') }}", { method: "POST" });
+    layarStatus.textContent = "Pembayaran tunai dipilih (layar pelanggan kembali ke daftar mobil).";
+  }
 }
-btnQr.addEventListener("click", async () => {
-  const total = SISA + (+denda.value || 0);
-  const r = await fetch("{{ url_for('layar_qris') }}", {method:"POST",
-    body:new URLSearchParams({id_p:"{{ o.id_pemesanan }}", jenis:"lunas", nominal:total})});
-  layarStatus.textContent = r.ok ? "QRIS sedang tampil di layar pelanggan sebesar " + rp(total) + "." : "Gagal menampilkan QRIS.";
-});
-tgl.addEventListener("input", hitungDenda); tarif.addEventListener("input", hitungDenda);
-denda.addEventListener("input", hitungTotal); nominal.addEventListener("input", hitungTotal);
+
+btnQr.addEventListener("click", kirimQrisOtomatis);
+tgl.addEventListener("input", hitungDenda);
+tarif.addEventListener("input", hitungDenda);
+denda.addEventListener("input", hitungTotal);
+nominal.addEventListener("input", hitungTotal);
 mp.addEventListener("change", ganti);
-hitungDenda(); ganti();
+
+hitungDenda();
+ganti();
 </script>
 {% endblock %}

@@ -274,6 +274,15 @@ def pemesanan():
                 cur.execute("UPDATE mobil SET id_statusMobil='SM003' WHERE id_mobil=%s",
                             (mobil["id_mobil"],))
             con.commit()
+            # --- TAMBAHAN: Jika metode bayar QRIS, langsung tampilkan QR di layar pelanggan ---
+            pilih_mp = next((m for m in metode if m["id_metodePemb"] == f["id_metodePemb"]), None)
+            if pilih_mp and is_qris(pilih_mp["metode_pembayaran"]):
+                set_layar(mode="qris", id_p=id_p, jenis="awal", nominal=pmb_awal)
+                flash(f"Pemesanan {id_p} tersimpan. QRIS otomatis tampil di layar pelanggan.", "ok")
+            else:
+                flash(f"Pemesanan {id_p} tersimpan. Silakan terima pembayaran tunai.", "ok")
+            return redirect(url_for("kasir", id_p=id_p))
+
         except Exception as e:          # noqa
             con.rollback()
             flash(f"Gagal menyimpan: {e}", "error")
@@ -552,12 +561,13 @@ def daftar_mobil():
         ORDER BY (m.id_statusMobil='SM001') DESC, m.merk_mobil""")
 
 
+# 2. Di bagian CLIENT & LAYAR PELANGGAN (paling bawah app.py, ganti mulai @app.route("/")):
 @app.route("/")
 def client_mobil():
-    return render_template("client_mobil.html", rows=daftar_mobil())
+    # Langsung arahkan layar pelanggan outlet ke tampilan layar real-time
+    return redirect(url_for("layar", t=TOKEN))
 
 
-# ---------- layar pelanggan (otomatis berganti: daftar mobil -> QRIS -> struk)
 def cek_token(t):
     if not hmac.compare_digest(t, TOKEN):
         abort(404)
@@ -581,20 +591,21 @@ def layar(t):
     return render_template("layar.html", t=t, v=s["v"], panel=render_panel(s))
 
 
-@app.route("/layar/<t>/state")
-def layar_state(t):
+@app.route("/layar/<t>/poll")
+def layar_poll(t):
     cek_token(t)
     s = layar_snapshot()
-    r = jsonify(v=s["v"], mode=s["mode"])
-    r.headers["Cache-Control"] = "no-store"
-    return r
-
-
-@app.route("/layar/<t>/panel")
-def layar_panel(t):
-    cek_token(t)
-    r = Response(render_panel(layar_snapshot()))
-    r.headers["Cache-Control"] = "no-store"
+    v_client = request.args.get("v", type=int)
+    force = request.args.get("force") == "1"
+    
+    # Jika versi berubah atau paksa refresh katalog mobil (idle), kirim HTML terbaru sekalian
+    if v_client != s["v"] or force:
+        html = render_panel(s)
+        r = jsonify(changed=True, v=s["v"], mode=s["mode"], html=html)
+    else:
+        r = jsonify(changed=False, v=s["v"], mode=s["mode"])
+        
+    r.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     return r
 
 

@@ -8,13 +8,12 @@
   <p class="redup">Kode pemesanan {{ o.id_pemesanan }}</p>
 </section>
 {% elif mode == 'struk' and o %}
-{% set jenis = s.jenis %}
+{% set jenis = s.jenis %} 
 <section class="layar-struk">
   <h1 class="noprint">Pembayaran diterima. Terima kasih!</h1>
   <p class="redup noprint" style="margin:0">Kode struk Anda</p>
   <div class="kodebesar">{{ o.id_transaksiAwa if jenis == 'awal' else o.id_detailTransak }}</div>
   {% include "_struk_body.html" %}
-  <p class="noprint"><button type="button" onclick="window.print()">Cetak / simpan PDF</button></p>
 </section>
 {% else %}
 <div class="hero">
