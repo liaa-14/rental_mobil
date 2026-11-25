@@ -6,43 +6,97 @@
 <form method="post" class="kartu" id="form">
   <h2>Data pelanggan</h2>
   <div class="baris">
-    <div><label for="nama">Nama</label><input id="nama" name="nama" required></div>
-    <div><label for="nik">NIK</label><input id="nik" name="nik" required inputmode="numeric" maxlength="16"></div>
-    <div><label for="no_telp">Nomor telepon</label><input id="no_telp" name="no_telp" required inputmode="tel"></div>
+    <div>
+      <label for="nama">Nama</label>
+      <input id="nama" name="nama" required>
+    </div>
+    <div>
+      <label for="nik">NIK</label>
+      <input id="nik" name="nik" required inputmode="numeric" maxlength="16">
+    </div>
+    <div>
+      <label for="no_telp">Nomor telepon</label>
+      <input id="no_telp" name="no_telp" required inputmode="tel">
+    </div>
   </div>
   <div class="baris">
-    <div><label for="prov_s">Provinsi</label><select id="prov_s"><option value="">Memuat...</option></select><input type="hidden" name="prov" id="prov"></div>
-    <div><label for="kab_s">Kabupaten/Kota</label><select id="kab_s" disabled></select><input type="hidden" name="kab" id="kab"></div>
-    <div><label for="kec_s">Kecamatan</label><select id="kec_s" disabled></select><input type="hidden" name="kec" id="kec"></div>
+    <div>
+      <label for="prov_s">Provinsi</label>
+      <select id="prov_s">
+        <option value="">Memuat...</option>
+      </select>
+      <input type="hidden" name="prov" id="prov">
+    </div>
+
+    <div>
+      <label for="kab_s">Kabupaten/Kota</label>
+      <select id="kab_s"></select>
+      <input type="hidden" name="kab" id="kab">
+    </div>
+    <div>
+      <label for="kec_s">Kecamatan</label>
+      <select id="kec_s"></select>
+      <input type="hidden" name="kec" id="kec">
+    </div>
   </div>
-  <label for="detail">Detail alamat</label><input id="detail" name="detail" placeholder="Jalan, nomor, RT/RW" required>
+  <div>
+    <label for="detail">Detail alamat</label>
+    <input id="detail" name="detail" placeholder="Jalan, nomor, RT/RW" required>
+  </div>
 
   <h2 style="margin-top:1.5rem">Sewa</h2>
   <div class="baris">
-    <div><label for="id_mobil">Mobil (yang tersedia)</label>
+    <div>
+      <label for="id_mobil">Mobil (yang tersedia)</label>
       <select id="id_mobil" name="id_mobil" required>
         <option value="" data-harga="0">Pilih mobil</option>
         {% for m in mobil %}<option value="{{ m.id_mobil }}" data-harga="{{ m.harga_sewa_hari }}">{{ m.merk_mobil }} {{ m.tipe_mobil }} - {{ m.no_plat }} ({{ m.harga_sewa_hari|rp }}/hari)</option>{% endfor %}
-      </select></div>
-    <div><label for="tp">Tanggal pemakaian</label><input id="tp" type="date" name="tgl_pemakaian" min="{{ today }}" required></div>
-    <div><label for="tk">Tanggal pengembalian</label><input id="tk" type="date" name="tgl_pengembalian" min="{{ today }}" required></div>
-    <div><label for="dk">Diskon (%)</label><input id="dk" type="number" name="diskon_persen" min="0" max="99" step="1" value="0"></div>
+      </select>
+    </div>
+    <div>
+      <label for="tp">Tanggal pemakaian</label>
+      <input id="tp" type="date" name="tgl_pemakaian" min="{{ today }}" required></div>
+    <div>
+      <label for="tk">Tanggal pengembalian</label>
+      <input id="tk" type="date" name="tgl_pengembalian" min="{{ today }}" required></div>
+    <div>
+      <label for="dk">Diskon (%)</label>
+      <input id="dk" type="number" name="diskon_persen" min="0" max="99" step="1" value="0"></div>
   </div>
 
   <h2 style="margin-top:1.5rem">Pembayaran awal</h2>
   <div class="baris">
-    <div><label for="mp">Metode</label>
-      <select id="mp" name="id_metodePemb">{% for m in metode %}<option value="{{ m.id_metodePemb }}" data-qris="{{ 1 if is_qris(m.metode_pembayaran) else 0 }}">{{ m.metode_pembayaran }}</option>{% endfor %}</select></div>
-    <div><label for="pa">Nominal pembayaran awal</label><input id="pa" type="number" name="pmb_awal" min="0" required></div>
+    <div>
+      <label for="mp">Metode</label>
+      <select id="mp" name="id_metodePemb">{% for m in metode %}<option value="{{ m.id_metodePemb }}" data-qris="{{ 1 if is_qris(m.metode_pembayaran) else 0 }}">{{ m.metode_pembayaran }}</option>{% endfor %}</select>
+    </div>
+    <div>
+      <label for="pa">Nominal pembayaran awal</label>
+      <input id="pa" type="number" name="pmb_awal" min="0" required>
+    </div>
   </div>
   <p class="redup">Setelah disimpan, kamu diarahkan ke halaman kasir untuk menampilkan QR dan menerima pembayaran.</p>
 
   <div class="hitung" id="hitung">
-    <div><span>Lama sewa</span><span id="h_hari">-</span></div>
-    <div><span>Total sewa (hari x harga)</span><span id="h_awal">-</span></div>
-    <div><span>Potongan diskon</span><span id="h_pot">-</span></div>
-    <div class="tot"><span>Total yang harus dibayar</span><span id="h_akhir">-</span></div>
-    <div><span>Batas pembayaran awal (30% - 50%)</span><span id="h_batas">-</span></div>
+    <div>
+      <span>Lama sewa</span>
+      <span id="h_hari">-</span></div>
+    <div>
+      <span>Total sewa (hari x harga)</span>
+      <span id="h_awal">-</span>
+    </div>
+    <div>
+      <span>Potongan diskon</span>
+      <span id="h_pot">-</span>
+    </div>
+    <div class="tot">
+      <span>Total yang harus dibayar</span>
+      <span id="h_akhir">-</span>
+    </div>
+    <div>
+      <span>Batas pembayaran awal (30% - 50%)</span>
+      <span id="h_batas">-</span>
+    </div>
   </div>
   <p><button>Simpan dan lanjut ke kasir</button></p>
 </form>
